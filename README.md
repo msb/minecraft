@@ -153,3 +153,20 @@ kubectl cp $POD:permissions.json $POD:/data/
 # restart the server
 kubectl rollout restart deployment bds
 ```
+
+### Deploying custom functions
+
+Custom function can be developed that allow players to enhance their builds. Some example functions
+have been include in `/functions` and these can be deployed using:
+
+```sh
+kubectl cp functions $POD:/data/behavior_packs/vanilla/functions
+```
+
+If you add new functions to the server, this will require a server restart for them to be loaded.
+However, if you update an existing function, you only need to run 
+[`/reload'](https://minecraft.gamepedia.com/Commands/reload) from your client.
+
+Current, for simplicity, these functions are deployed to an existing 
+[behavior pack](https://minecraft.gamepedia.com/Tutorials/Creating_behavior_packs). If further
+functions are developed, it may be worth creating a seperate behavior pack project.
