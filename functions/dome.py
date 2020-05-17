@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import functools
 
@@ -8,6 +9,7 @@ WHITE, ORANGE, MAGENTA, BLUE_LIGHT, \
     BROWN, GREEN, RED, BLACK = range(16)
 
 # all blocks that the dome can be made of and their tag (to be used in the filename)
+# (https://minecraft.gamepedia.com/Bedrock_Edition_data_values)
 BLOCKS_AND_TAGS = (
     ('glass', 'clear'),
     (f'stained_glass {PINK}', 'pink'),
@@ -19,7 +21,7 @@ BLOCKS_AND_TAGS = (
 RADIUSES = (25, 32, 40)
 
 # the namespace of the functions
-NAMESPACE = 'dev'
+NAMESPACE = 'dome'
 
 
 def check_bounds(voxels):
@@ -43,7 +45,7 @@ def chunks(lst, n):
 
 def main():
     """
-    Script to create a set of minecraft functions to build domes, one for each combination of
+    Script to create a set of minecraft functions that builds domes, one for each combination of
     RADIUSES and BLOCKS_AND_TAGS.
     """
     # Generate multiple points on the dome with `step` granularity.
@@ -60,6 +62,10 @@ def main():
         for elevation in np.arange(-np.pi/24, np.pi/2, step)
     ]
 
+    # make the namespace dir, if necessary
+    namespace = os.path.join(os.getcwd(), NAMESPACE)
+    os.makedirs(namespace, exist_ok=True)
+
     def create_dome_function(radius, block, tag):
         """
         Closure on `points` that creates a dome function from a block with a given radius.
@@ -73,7 +79,7 @@ def main():
         for i, chunk in enumerate(chunks(uniqueVoxels, 10000)):
             if i > 0:
                 tag = f'{tag}_{i}'
-            file_name = f'./{NAMESPACE}/dome_{radius}_{tag}.mcfunction'
+            file_name = os.path.join(namespace, f'{radius}_{tag}.mcfunction')
             print(file_name)
             with open(file_name, 'w') as file:
                 for x, y, z in chunk:
