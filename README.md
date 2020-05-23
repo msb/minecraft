@@ -76,10 +76,9 @@ A container has been developed to help with this and instructions for it's use c
 necessary containers/variables locally to run:
 
 ```sh
-# TODO capture this in a script
-docker run -it --rm --env-file tiny-cluster/kube.env \
-  --volumes-from=$PROJECT_CONTAINER --volume=$PWD:/minecraft \
-  google/cloud-sdk bash
+docker run -it --rm -e HISTFILE=/root/.kube/.bash_history \
+  -v kube-$TF_VOLUME:/root/.kube -v $PWD:/minecraft google/cloud-sdk bash
+#docker run -it --rm --env-file kube.env -v kube-minecraft:/root/.kube -v $PWD:/minecraft google/cloud-sdk bash
 ```
 
 This command will put you in a container where you can manage your cluster by running
@@ -149,7 +148,7 @@ his `xuid` which can be read from the logs when they enter the game. Once you ha
 the `permissions.json.in` file to `permissions.json` and update it. Then:
 
 ```sh
-kubectl cp $POD:permissions.json $POD:/data/
+kubectl cp /minecraft/permissions.json $POD:/data/
 # restart the server
 kubectl rollout restart deployment bds
 ```
