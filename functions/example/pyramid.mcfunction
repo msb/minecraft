@@ -1,4 +1,4 @@
-fill ~1 ~0 ~1 ~41 ~0 ~41 terracotta
+fill ~1 ~0 ~1 ~41 ~0 ~41 stonebrick 0
 fill ~2 ~1 ~2 ~40 ~1 ~40 sealantern
 fill ~3 ~2 ~3 ~39 ~2 ~39 stained_glass 6
 fill ~4 ~3 ~4 ~38 ~3 ~38 stained_glass 6
