@@ -8,7 +8,7 @@ can be deployed using:
 # for a local deployment:
 docker cp functions/{NAMESPACE} mc:/data/behavior_packs/vanilla/functions/
 # for a cluster deployment:
-kubectl cp /minecraft/functions/{NAMESPACE}/ $POD:/data/behavior_packs/vanilla/functions/{NAMESPACE}
+kubectl cp /minecraft/functions/{NAMESPACE} $POD:/data/behavior_packs/vanilla/functions
 ```
 
 If you add new functions to the server, this will require a server restart for them to be loaded.
