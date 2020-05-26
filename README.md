@@ -8,6 +8,9 @@ types of server:
 
 The following instructions are all related to managing the Bedrock server.
 
+Some experience with Docker, GCP, Terrform, and Kubernetes would be useful when using this
+resource.
+
 ## Managing a local Bedrock server
 
 You can easily get a Minecraft Bedrock server up and running on your own laptop/desktop by using
@@ -63,23 +66,19 @@ specifically on a [GCP Kubernetes Cluster](https://cloud.google.com/kubernetes-e
 To deploy the server you need to complete the following three steps.
 
 1. Create [a GCP project](https://cloud.google.com/storage/docs/projects) to contain your cluster.
-A container has been developed to help with this and instructions for it's use can be found in
-[`create-gcp-project\README.md`](https://github.com/msb/minecraft/blob/master/create-gcp-project/README.md).
-~~TODO: update when available on Docker Hub~~
+   [A Terraform repo](https://github.com/msb/tf-gcp-project) has been provided to automate this for
+   you. Follow the repo's README to complete this step.
 
-2. Create the cluster. A terraform project has been created to simplify this and instructions for
-   it's use can be found in
-   [`tiny-cluster\README.md`](https://github.com/msb/minecraft/blob/master/tiny-cluster/README.md).
-   ~~TODO update when available on Docker Hub~~
+2. Create the cluster. [Another Terraform repo](https://github.com/msb/tf-tiny-cluster) has been
+   provided to automate this for you. Follow the repo's README to complete the creation of the
+   cluster (this README assumes you will name your TF volume "minecraft").
 
-3. Deploy minecraft to the cluster. If you have completed the last two steps, you should have the
-necessary containers/variables locally to run:
+3. Deploy minecraft to the cluster. If you have completed the last two steps, you should be in a
+   position to run:
 
 ```sh
-# TODO capture this in a script
-docker run -it --rm --env-file tiny-cluster/kube.env \
-  --volumes-from=$PROJECT_CONTAINER --volume=$PWD:/minecraft \
-  google/cloud-sdk bash
+docker run -it --rm -e HISTFILE=/root/.kube/.bash_history \
+  -v minecraft-kube:/root/.kube -v $PWD:/minecraft google/cloud-sdk bash
 ```
 
 This command will put you in a container where you can manage your cluster by running
@@ -149,7 +148,7 @@ his `xuid` which can be read from the logs when they enter the game. Once you ha
 the `permissions.json.in` file to `permissions.json` and update it. Then:
 
 ```sh
-kubectl cp $POD:permissions.json $POD:/data/
+kubectl cp /minecraft/permissions.json $POD:/data/
 # restart the server
 kubectl rollout restart deployment bds
 ```
