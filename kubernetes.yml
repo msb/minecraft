@@ -19,7 +19,7 @@
       spec:
         containers:
           - name: main
-            image: itzg/minecraft-bedrock-server
+            image: msb140610/fork-minecraft-bedrock-server:20200529
             volumeMounts:
               - mountPath: /data
                 name: data
