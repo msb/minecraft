@@ -94,7 +94,7 @@ and re-start the server for you. This file is based on the
 [itzg/docker-minecraft-bedrock-server example](https://github.com/itzg/docker-minecraft-bedrock-server/blob/master/examples/kubernetes.yml). You can check the progress of the installation with:
 
 ```sh
-kubectl logs -f deployment/bds
+kubectl logs -f statefulset/bds
 ```
 
 When complete you can read the IP address to connect on using:
@@ -150,5 +150,5 @@ the `permissions.json.in` file to `permissions.json` and update it. Then:
 ```sh
 kubectl cp /minecraft/permissions.json $POD:/data/
 # restart the server
-kubectl rollout restart deployment bds
+kubectl rollout restart statefulset bds
 ```
