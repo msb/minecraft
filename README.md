@@ -114,17 +114,18 @@ POD=$(kubectl get pod --field-selector=status.phase=Running | sed 's/ .*//' | ta
 
 ### Backing up your worlds data
 
-Doing a backup roughly the same as above but using `kubectl`. To ensure consistent data, attach to
+Doing a backup is similar to the above except that we use `kubectl` and we backup to a GCP bucket.
+
+To ensure consistent data, attach to
 the Minecraft process using `kubectl attach -it $POD` and run the command 
-[`save hold`](https://minecraft.gamepedia.com/Commands/save). Then in another window run:
+[`save hold`](https://minecraft.gamepedia.com/Commands/save). Then in another container run:
 
 ```sh
-TIMESTAMP=$(date "+%Y%m%d-%H%M")
-kubectl exec -it $POD -- zip -r /tmp/mc.$TIMESTAMP.zip /data/worlds
-kubectl cp $POD:/tmp/mc.$TIMESTAMP.zip /minecraft/mc.$TIMESTAMP.zip
+/cluster/init.sh
+/project/backup.sh
 ```
 
-When complete, return to the 1st window and type 
+When complete, return to the 1st container and type 
 [`save resume`](https://minecraft.gamepedia.com/Commands/save). When you disconnect from the
 process, make sure you use ^p^q. Otherwise you may kill the process (although I think K8s should
 just restart the pod).
