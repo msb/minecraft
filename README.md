@@ -77,8 +77,7 @@ To deploy the server you need to complete the following three steps.
    position to run:
 
 ```sh
-docker run -it --rm -e HISTFILE=/root/.kube/.bash_history \
-  -v minecraft-kube:/root/.kube -v $PWD:/minecraft google/cloud-sdk bash
+./kube-container.sh
 ```
 
 This command will put you in a container where you can manage your cluster by running
@@ -91,7 +90,8 @@ kubectl apply -f /minecraft/kubernetes.yml
 `kubernetes.yml` defines how the server will be deployed to the cluster. You can make changes to
 the file (eg. change the game mode), re-run the command and Kubernetes will re-deploy the changes
 and re-start the server for you. This file is based on the 
-[itzg/docker-minecraft-bedrock-server example](https://github.com/itzg/docker-minecraft-bedrock-server/blob/master/examples/kubernetes.yml). You can check the progress of the installation with:
+[itzg/docker-minecraft-bedrock-server example](https://github.com/itzg/docker-minecraft-bedrock-server/blob/master/examples/kubernetes.yml).
+You can check the progress of the installation with:
 
 ```sh
 kubectl logs -f statefulset/bds
