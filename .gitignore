@@ -1,2 +1,4 @@
 *.env
 *.json
+default.tf
+locals.tf

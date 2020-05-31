@@ -69,9 +69,10 @@ To deploy the server you need to complete the following three steps.
    [A Terraform repo](https://github.com/msb/tf-gcp-project) has been provided to automate this for
    you. Follow the repo's README to complete this step.
 
-2. Create the cluster. [Another Terraform repo](https://github.com/msb/tf-tiny-cluster) has been
-   provided to automate this for you. Follow the repo's README to complete the creation of the
-   cluster (this README assumes you will name your TF volume "minecraft").
+2. Create the cluster. A terraform project for this purpose is provided in the `cluster` directory
+   and uses the [Terraform Module For Single Node GCP Cluster](https://github.com/msb/tf-tiny-cluster)
+   Follow the modules's README to complete the creation of the cluster
+   (this README assumes you will name your TF volume "minecraft").
 
 3. Deploy minecraft to the cluster. If you have completed the last two steps, you should be in a
    position to run:
