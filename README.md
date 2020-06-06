@@ -63,16 +63,20 @@ specifically on a [GCP Kubernetes Cluster](https://cloud.google.com/kubernetes-e
 
 ### Deploying the server
 
-To deploy the server you need to complete the following three steps.
+To deploy the server you need to complete the following three steps (note that, in steps 1 and 2,
+this README assumes you will name/prefix your TF volumes "minecraft").
 
 1. Create [a GCP project](https://cloud.google.com/storage/docs/projects) to contain your cluster.
-   [A Terraform repo](https://github.com/msb/tf-gcp-project) has been provided to automate this for
-   you. Follow the repo's README to complete this step.
+   [A Terraform module](https://github.com/msb/tf-gcp-project) has been provided to automate this 
+   for you. Following the module's README you will see that this step has already been partially
+   complete by the inclusion of 
+   [the `cluster-project` folder](https://github.com/msb/tf-gcp-project/tree/master/cluster-project).
+   Note that when running `terraform.output.sh` you should target the output at 
+   [the `cluster` folder](https://github.com/msb/tf-gcp-project/tree/master/cluster).
 
-2. Create the cluster. A terraform project for this purpose is provided in the `cluster` directory
+2. Create the cluster. A terraform project for this purpose is provided in the `cluster` folder
    and uses the [Terraform Module For Single Node GCP Cluster](https://github.com/msb/tf-tiny-cluster)
-   Follow the modules's README to complete the creation of the cluster
-   (this README assumes you will name your TF volume "minecraft").
+   Follow the modules's README to complete the creation of the cluster.
 
 3. Deploy minecraft to the cluster. If you have completed the last two steps, you should be in a
    position to run:
