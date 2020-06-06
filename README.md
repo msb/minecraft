@@ -23,8 +23,8 @@ The following docker command runs a world in `creative` mode as a background pro
 
 ```sh
 docker run -v mc:/data -it --rm --name mc -d \
-  -e EULA=TRUE -e GAMEMODE=creative -e ALLOW_CHEATS=true \
-  -p 19132:19132/udp itzg/minecraft-bedrock-server
+  -e EULA=TRUE -e GAMEMODE=creative -e ALLOW_CHEATS=true -e LEVEL_NAME=creative-1 \
+  -p 19132:19132/udp msb140610/fork-minecraft-bedrock-server:20200529
 ```
 
 A volume is mounted for the `/data` directory so that you can restart the process without losing
