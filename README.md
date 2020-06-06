@@ -70,7 +70,7 @@ this README assumes you will name/prefix your TF volumes "minecraft").
    [A Terraform module](https://github.com/msb/tf-gcp-project) has been provided to automate this 
    for you. Following the module's README you will see that this step has already been partially
    complete by the inclusion of 
-   [the `cluster-project` folder](https://github.com/msb/tf-gcp-project/tree/master/cluster-project).
+   [the `cluster-project` folder](https://github.com/msb/minecraft/tree/master/cluster-project).
    Note that when running `terraform.output.sh` you should target the output at 
    [the `cluster` folder](https://github.com/msb/tf-gcp-project/tree/master/cluster).
 
