@@ -1,4 +1,4 @@
 *.env
 *.json
-default.tf
+backend.tf
 locals.tf
