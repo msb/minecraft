@@ -45,6 +45,9 @@
                   - 127.0.0.1
               initialDelaySeconds: 30
             livenessProbe: *probe
+            # for issuing minecraft commands
+            stdin: true
+            tty: true
     volumeClaimTemplates:
       - metadata:
           name: data
