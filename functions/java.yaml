@@ -1,0 +1,4 @@
+# all general script configuration specific to the java version
+
+# the maximum number of commands a function can execute
+max_commands: 65536

@@ -1,0 +1,6 @@
+# all configuration specific to generating domes in the java version
+
+# all blocks that the dome can be made of and their tag (to be used in the function name)
+blocks_and_tags:
+    - ['minecraft:glass', 'clear']
+    - ['minecraft:pink_stained_glass', 'pink']
