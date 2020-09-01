@@ -11,9 +11,9 @@ The following instructions are all related to managing the Bedrock server.
 Some experience with Docker, GCP, Terrform, and Kubernetes would be useful when using this
 resource.
 
-## Managing a local Bedrock server
+## Managing a local server
 
-You can easily get a Minecraft Bedrock server up and running on your own laptop/desktop by using
+You can easily get a Minecraft server up and running on your own laptop/desktop by using
 [a containerised version of the software](https://hub.docker.com/r/itzg/minecraft-bedrock-server)
 that greatly simplifies the installation.
 
@@ -22,9 +22,15 @@ that greatly simplifies the installation.
 The following docker command runs a world in `creative` mode as a background process:
 
 ```sh
+# Bedrock version
 docker run -v mc:/data -it --rm --name mc -d \
   -e EULA=TRUE -e GAMEMODE=creative -e ALLOW_CHEATS=true -e LEVEL_NAME=creative-1 \
   -p 19132:19132/udp msb140610/fork-minecraft-bedrock-server:20200529
+
+# Java version
+docker run -v mcj:/data -it --rm --name mcj -d \
+  -e EULA=TRUE -e MODE=creative -e LEVEL=creative-1 -e OPS=$MINECRAFT_OPS -e ENABLE_COMMAND_BLOCK=true \
+  -p 25565:25565 itzg/minecraft-server
 ```
 
 A volume is mounted for the `/data` directory so that you can restart the process without losing
