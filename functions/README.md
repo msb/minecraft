@@ -35,9 +35,17 @@ docker run --user $(id -u):$(id -g) --rm -v $PWD/config:/config -v $PWD/output:/
 # java dome
 docker run --user $(id -u):$(id -g) --rm -v $PWD/config:/config -v $PWD/output:/output \
   minecraft-functions dome /config/java.yaml /config/dome.yaml /config/dome.java.yaml
+
+# bedrock ring
+docker run --user $(id -u):$(id -g) --rm -v $PWD/config:/config -v $PWD/output:/output \
+  minecraft-functions ring /config/bedrock.yaml /config/ring.yaml /config/ring.bedrock.yaml
+
+# java ring
+docker run --user $(id -u):$(id -g) --rm -v $PWD/config:/config -v $PWD/output:/output \
+  minecraft-functions ring /config/java.yaml /config/ring.yaml /config/ring.java.yaml
 ```
 
-The dome size and material can be varied by editing the configuration files
+The dome/ring size and material can be varied by editing the configuration files
 
 Note that currently, you will have to re-build the container whenever changes to the script are 
 made.
