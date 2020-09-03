@@ -1,3 +1,4 @@
 *.pyc
-dome/
-cloudtree/
+*.egg-info
+venv
+output/

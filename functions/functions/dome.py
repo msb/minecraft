@@ -1,29 +1,8 @@
-#!/usr/bin/env python3
-"""
-Script to create a set of minecraft functions that builds domes, one for each combination of
-`radiuses` and `dome_blocks_and_tags`.
-
-Usage:
-    dome.py <config-url>...
-    dome.py (-h | --help)
-
-Options:
-    -h, --help     Show a brief usage summary.
-
-The <config-url> positional arguments should be URLs to a configuration file. If the URL lacks a
-scheme, the "file" scheme is assumed. Supported schemes are "https", "file" and "gs". The "gs"
-scheme allows configuration contained within a Google Storage bucket to be specified in the same
-way as with the "gsutil" command. If multiple configuration files are provided, the specifications
-are *deep merged*.
-"""
 import os
-import re
-import docopt
-import geddit
-import yaml
 import numpy as np
 import functools
-import dpath.util as dpath
+
+from . import dpath, chunks, resolve_symbols
 
 
 def check_bounds(voxels):
@@ -39,25 +18,19 @@ def check_bounds(voxels):
     print(bounds)
 
 
-def chunks(lst, n):
-    """yield successive n-sized chunks from lst"""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+def generate(settings):
+    """
+    Generates functions that create domes,
+    one for each combination of `radiuses` and `blocks_and_tags`.
+    """
 
+    # make the namespace dir, if necessary
+    namespace = os.path.join(
+        dpath.get(settings, '/output_path'), dpath.get(settings, '/namespace')
+    )
+    os.makedirs(namespace, exist_ok=True)
 
-def load_settings(urls):
-    settings = {}
-    for url in urls:
-        print('Loading settings from %s', url)
-        settings = dpath.merge(settings, yaml.safe_load(geddit.geddit(url)))
-    return settings
-
-
-def main():
-    opts = docopt.docopt(__doc__)
-
-    # read the settings
-    settings = load_settings(opts['<config-url>'])
+    max_commands = dpath.get(settings, '/max_commands')
 
     print('Generating multiple points')
 
@@ -74,12 +47,6 @@ def main():
         # from just below the ground to the apex
         for elevation in np.arange(-np.pi/4, np.pi/2, step)
     ]
-
-    # make the namespace dir, if necessary
-    namespace = os.path.join(os.getcwd(), dpath.get(settings, '/namespace'))
-    os.makedirs(namespace, exist_ok=True)
-
-    max_commands = dpath.get(settings, '/max_commands')
 
     def create_dome_function(radius, block, tag):
         """
@@ -102,26 +69,12 @@ def main():
                     # in minecraft, the y axis is vertical (non-intuitively)
                     file.write(f'setblock ~{x} ~{z} ~{y} {block}\n')
 
-    symbol_map = dpath.get(settings, '/symbol_map', default={})
-
-    def resolve_symbols(block):
-        """
-        Resolve any reference symbols in a block name.
-        """
-        for brace in re.findall(r'{.*?}', block):
-            block = block.replace(brace, symbol_map[brace[1:-1]])
-        return block
-
     # create a dome function for each combination of `radiuses` and `blocks_and_tags`
     blocks_and_tags = [
-        (resolve_symbols(block), tag)
+        (resolve_symbols(settings, block), tag)
         for block, tag in dpath.get(settings, '/blocks_and_tags')
     ]
 
     for radius in dpath.get(settings, '/radiuses'):
         for block, tag in blocks_and_tags:
             create_dome_function(radius, block, tag)
-
-
-if __name__ == "__main__":
-    main()

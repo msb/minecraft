@@ -1,0 +1,6 @@
+docopts
+geddit
+pyyaml
+dpath
+numpy
+scipy

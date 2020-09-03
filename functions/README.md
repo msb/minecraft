@@ -28,13 +28,16 @@ sizes and colours. A container has been provided with the required python librar
 built using `docker build --tag minecraft-functions .` Then the script can be run with:
 
 ```sh
-# bedrock
-docker run --user $(id -u):$(id -g) --rm -it -v $PWD:/scripts minecraft-functions \
-  dome.py /scripts/bedrock.yaml /scripts/dome.yaml /scripts/dome.bedrock.yaml
+# bedrock dome
+docker run --user $(id -u):$(id -g) --rm -v $PWD/config:/config -v $PWD/output:/output \
+  minecraft-functions dome /config/bedrock.yaml /config/dome.yaml /config/dome.bedrock.yaml
 
-# java
-docker run --user $(id -u):$(id -g) --rm -it -v $PWD:/scripts minecraft-functions \
-  dome.py /scripts/java.yaml /scripts/dome.yaml /scripts/dome.java.yaml
+# java dome
+docker run --user $(id -u):$(id -g) --rm -v $PWD/config:/config -v $PWD/output:/output \
+  minecraft-functions dome /config/java.yaml /config/dome.yaml /config/dome.java.yaml
 ```
 
 The dome size and material can be varied by editing the configuration files
+
+Note that currently, you will have to re-build the container whenever changes to the script are 
+made.

@@ -2,8 +2,15 @@ FROM python:slim
 
 WORKDIR /scripts
 
-RUN pip install docopts geddit pyyaml dpath numpy scipy
+RUN pip install --upgrade pip
 
-VOLUME /scripts
+ADD requirements.txt ./
+RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python"]
+ADD ./ ./
+RUN pip install -e .
+
+VOLUME /config
+VOLUME /output
+
+ENTRYPOINT ["minecraftfunctions"]

@@ -1,5 +1,11 @@
 # all general script configuration specific to the bedrock version
 
+# the maximum number of commands a function can execute
+max_commands: 10000
+
+# where all functions are written to
+output_path: /output/bedrock
+
 # symbol values that can be used in bedrock block names: eg. "stained_glass {pink}"
 symbol_map:
     white: "0"
@@ -18,6 +24,3 @@ symbol_map:
     green: "13"
     red: "14"
     black: "15"
-
-# the maximum number of commands a function can execute
-max_commands: 10000
