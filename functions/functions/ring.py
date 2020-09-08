@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from . import dpath, chunks, resolve_symbols
+from . import dpath, chunks, resolve_symbols, namespace_dir
 
 
 def generate(settings):
@@ -16,11 +16,7 @@ def generate(settings):
         for azimuth in np.arange(-np.pi, np.pi, step)
     ]
 
-    # make the namespace dir, if necessary
-    namespace = os.path.join(
-        dpath.get(settings, '/output_path'), dpath.get(settings, '/namespace')
-    )
-    os.makedirs(namespace, exist_ok=True)
+    namespace = namespace_dir(settings)
 
     max_commands = dpath.get(settings, '/max_commands')
 

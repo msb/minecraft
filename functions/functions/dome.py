@@ -2,7 +2,7 @@ import os
 import numpy as np
 import functools
 
-from . import dpath, chunks, resolve_symbols
+from . import dpath, chunks, resolve_symbols, namespace_dir
 
 
 def check_bounds(voxels):
@@ -23,12 +23,7 @@ def generate(settings):
     Generates functions that create domes,
     one for each combination of `radiuses` and `blocks_and_tags`.
     """
-
-    # make the namespace dir, if necessary
-    namespace = os.path.join(
-        dpath.get(settings, '/output_path'), dpath.get(settings, '/namespace')
-    )
-    os.makedirs(namespace, exist_ok=True)
+    namespace = namespace_dir(settings)
 
     max_commands = dpath.get(settings, '/max_commands')
 
