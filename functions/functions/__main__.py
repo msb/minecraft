@@ -37,6 +37,7 @@ from . import dpath
 # all generators are statically linked here
 from .dome import generate as generate_dome  # noqa F401
 from .ring import generate as generate_ring  # noqa F401
+from .cloudtree import generate as generate_cloudtree  # noqa F401
 
 
 def load_settings(urls):
