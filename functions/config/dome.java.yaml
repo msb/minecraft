@@ -4,3 +4,9 @@
 blocks_and_tags:
     - ['minecraft:glass', 'clear']
     - ['minecraft:pink_stained_glass', 'pink']
+    - ['minecraft:yellow_stained_glass', 'yellow']
+    - ['minecraft:blue_light_stained_glass', 'blue']
+    - ['minecraft:green_stained_glass', 'green']
+
+# the namespace of the functions
+namespace: 'dome/functions'

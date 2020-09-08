@@ -4,3 +4,6 @@
 blocks_and_tags:
     - ['minecraft:lantern', 'lantern']
     - ['minecraft:sand', 'sand']
+
+# the namespace of the functions
+namespace: 'ring/functions'

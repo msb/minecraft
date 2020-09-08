@@ -4,3 +4,6 @@
 blocks_and_tags:
     - ['glass', 'clear']
     - ['stained_glass {pink}', 'pink']
+    - ['stained_glass {yellow}', 'yellow']
+    - ['stained_glass {blue_light}', 'blue']
+    - ['stained_glass {green}', 'green']

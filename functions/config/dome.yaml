@@ -4,6 +4,7 @@
 radiuses:
     - 25
     - 32
+    - 40
 
 # the namespace of the functions
 namespace: 'dome'
