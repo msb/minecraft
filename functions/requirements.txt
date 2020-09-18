@@ -4,3 +4,4 @@ pyyaml
 dpath
 numpy
 scipy
+NBT

@@ -3,7 +3,8 @@ Script to create a set of minecraft functions depending on the generator selecte
 configuration supplied.
 
 Usage:
-    minecraftfunctions <generator> [<config-url>...]
+    minecraftfunctions structure <nbt-file> <function-file>
+    minecraftfunctions <generator> <config-url>...
     minecraftfunctions (-h | --help)
 
 Options:
@@ -17,6 +18,10 @@ are *deep merged*.
 
 Generators:
 
+    minecraftfunctions structure ...
+
+        Converts an NBT structure file into an mcfunction file.
+
     minecraftfunctions dome ...
 
         Generates functions that create domes,
@@ -26,6 +31,10 @@ Generators:
 
         Generates functions that create rings,
         one for each combination of `radiuses` and `blocks_and_tags`.
+
+    minecraftfunctions cloudtree ...
+
+        Generates functions that create Cloud (very big) Trees.
 """
 import docopt
 import yaml
@@ -38,6 +47,8 @@ from . import dpath
 from .dome import generate as generate_dome  # noqa F401
 from .ring import generate as generate_ring  # noqa F401
 from .cloudtree import generate as generate_cloudtree  # noqa F401
+
+from .structure import generate as generate_structure
 
 
 def load_settings(urls):
@@ -52,12 +63,15 @@ def load_settings(urls):
 def main():
     opts = docopt.docopt(__doc__)
 
-    try:
-        generator = getattr(sys.modules[__name__], f"generate_{opts['<generator>']}")
-    except AttributeError:
-        sys.exit(f"{opts['<generator>']} is not a generator")
+    if opts['structure']:
+        generate_structure(opts['<nbt-file>'], opts['<function-file>'])
+    else:
+        try:
+            generator = getattr(sys.modules[__name__], f"generate_{opts['<generator>']}")
+        except AttributeError:
+            sys.exit(f"{opts['<generator>']} is not a generator")
 
-    # read the settings
-    settings = load_settings(opts['<config-url>'])
+        # read the settings
+        settings = load_settings(opts['<config-url>'])
 
-    generator(settings)
+        generator(settings)
