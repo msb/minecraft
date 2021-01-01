@@ -2,7 +2,7 @@ import os
 import numpy as np
 import functools
 
-from . import dpath, chunks, resolve_symbols, namespace_dir
+from . import dpath, chunks, resolve_symbols, namespace_dir, group_blocks_into_fills
 
 
 def check_bounds(voxels):
@@ -29,13 +29,16 @@ def generate(settings):
 
     print('Generating multiple points')
 
+    radiuses = dpath.get(settings, '/radiuses')
+
+    step = 0.5 / functools.reduce(lambda a, b: max(a, b), radiuses)
+
     # Generate multiple points on the dome with `step` granularity.
-    step = 0.002
     points = [
         (
             np.sin(azimuth) * np.cos(elevation),
+            np.sin(elevation),
             np.cos(azimuth) * np.cos(elevation),
-            np.sin(elevation)
         )
         # full circle
         for azimuth in np.arange(-np.pi, np.pi, step)
@@ -43,33 +46,69 @@ def generate(settings):
         for elevation in np.arange(-np.pi/4, np.pi/2, step)
     ]
 
-    def create_dome_function(radius, block, tag):
+    def create_dome_fills(radius):
         """
-        Closure on `points` that creates a dome function from a block with a given radius.
+        Closure on `points` that creates a list of fills for a dome with a given radius.
         """
+        print(f'preparing dome: {radius}')
 
         # convert `points` to `voxels` and remove duplicates
         voxels = (np.array(points) * radius).astype(np.int16)
-        uniqueVoxels = list({(x, y, z) for x, y, z in voxels})
 
+        # remove duplicates
+        uniqueVoxels = {(x, y, z) for x, y, z in voxels}
+
+        # group blocks into fills
+
+        print(f'grouping dome: {radius}')
+
+        blocks = []
+        min_x, min_y, min_z = (0, 0, 0)
+        max_x, max_y, max_z = (0, 0, 0)
+
+        for x, y, z in uniqueVoxels:
+            min_x = min(min_x, x)
+            min_y = min(min_y, y)
+            min_z = min(min_z, z)
+            max_x = max(max_x, x + 1)
+            max_y = max(max_y, y + 1)
+            max_z = max(max_z, z + 1)
+            blocks.append((x, y, z, True))
+
+        return group_blocks_into_fills(
+            blocks, (max_x, max_y, max_z), (min_x, min_y, min_z)
+        )
+
+    def write_dome_function(radius, block, tag, fills):
+        """
+        Closure the creates a dome function from a list of fills for given radius and block.
+        """
         # minecraft functions can only execute MAX_COMMANDS commands,
         # so we may have to split functions
-        for i, chunk in enumerate(chunks(uniqueVoxels, max_commands)):
+        for i, fills_chunk in enumerate(chunks(fills, max_commands)):
             if i > 0:
                 tag = f'{tag}_{i}'
             file_name = os.path.join(namespace, f'{radius}_{tag}.mcfunction')
-            print(file_name)
+            print(f'writing {file_name}')
             with open(file_name, 'w') as file:
-                for x, y, z in chunk:
-                    # in minecraft, the y axis is vertical (non-intuitively)
-                    file.write(f'setblock ~{x} ~{z} ~{y} {block}\n')
+                for min_voxel, max_voxel, _ in fills_chunk:
+                    min_x, min_y, min_z = min_voxel
+                    if min_voxel == max_voxel:
+                        file.write(f'setblock ~{min_x} ~{min_y} ~{min_z} {block}\n')
+                    else:
+                        max_x, max_y, max_z = max_voxel
+                        file.write(
+                            f'fill ~{min_x} ~{min_y} ~{min_z} ~{max_x} ~{max_y} ~{max_z} {block}\n'
+                        )
 
     # create a dome function for each combination of `radiuses` and `blocks_and_tags`
+
     blocks_and_tags = [
         (resolve_symbols(settings, block), tag)
         for block, tag in dpath.get(settings, '/blocks_and_tags')
     ]
 
-    for radius in dpath.get(settings, '/radiuses'):
+    for radius in radiuses:
+        fills = create_dome_fills(radius)
         for block, tag in blocks_and_tags:
-            create_dome_function(radius, block, tag)
+            write_dome_function(radius, block, tag, fills)
