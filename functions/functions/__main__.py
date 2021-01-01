@@ -3,7 +3,7 @@ Script to create a set of minecraft functions depending on the generator selecte
 configuration supplied.
 
 Usage:
-    minecraftfunctions structure <nbt-file> <function-file>
+    minecraftfunctions structure <nbt-file> <function-file> [<config-url>...]
     minecraftfunctions <generator> <config-url>...
     minecraftfunctions (-h | --help)
 
@@ -20,7 +20,10 @@ Generators:
 
     minecraftfunctions structure ...
 
-        Converts an NBT structure file into an mcfunction file.
+        Converts an NBT structure files into an mcfunction file.
+        `block_name_map` map can be used to change block name
+        (for example when creating a bedrock function).
+        Blocks are grouped into fills where possible.
 
     minecraftfunctions dome ...
 
@@ -68,15 +71,15 @@ def load_settings(urls):
 def main():
     opts = docopt.docopt(__doc__)
 
+    # read the settings
+    settings = load_settings(opts['<config-url>'])
+
     if opts['structure']:
-        generate_structure(opts['<nbt-file>'], opts['<function-file>'])
+        generate_structure(opts['<nbt-file>'], opts['<function-file>'], settings)
     else:
         try:
             generator = getattr(sys.modules[__name__], f"generate_{opts['<generator>']}")
         except AttributeError:
             sys.exit(f"{opts['<generator>']} is not a generator")
-
-        # read the settings
-        settings = load_settings(opts['<config-url>'])
 
         generator(settings)
