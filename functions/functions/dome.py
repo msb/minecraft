@@ -31,9 +31,10 @@ def generate(settings):
 
     radiuses = dpath.get(settings, '/radiuses')
 
+    # Generate multiple points on the dome with based on the largest radius.
+
     step = 0.5 / functools.reduce(lambda a, b: max(a, b), radiuses)
 
-    # Generate multiple points on the dome with `step` granularity.
     points = [
         (
             np.sin(azimuth) * np.cos(elevation),
@@ -81,7 +82,7 @@ def generate(settings):
 
     def write_dome_function(radius, block, tag, fills):
         """
-        Closure the creates a dome function from a list of fills for given radius and block.
+        Closure that creates a dome function from a list of fills for given radius and block.
         """
         # minecraft functions can only execute MAX_COMMANDS commands,
         # so we may have to split functions

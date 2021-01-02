@@ -2,5 +2,6 @@
 
 # all blocks that the ring can be made of and their tag (to be used in the function name)
 blocks_and_tags:
+    - ['glass', 'glass']
     - ['lantern 1', 'lantern']
     - ['sand', 'sand']
