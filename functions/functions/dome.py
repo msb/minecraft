@@ -2,7 +2,7 @@ import os
 import numpy as np
 import functools
 
-from . import dpath, chunks, resolve_symbols, namespace_dir, group_blocks_into_fills
+from . import dpath, chunks, resolve_symbols, namespace_dir, group_blocks_into_fills, write_fill
 
 
 def check_bounds(voxels):
@@ -93,14 +93,7 @@ def generate(settings):
             print(f'writing {file_name}')
             with open(file_name, 'w') as file:
                 for min_voxel, max_voxel, _ in fills_chunk:
-                    min_x, min_y, min_z = min_voxel
-                    if min_voxel == max_voxel:
-                        file.write(f'setblock ~{min_x} ~{min_y} ~{min_z} {block}\n')
-                    else:
-                        max_x, max_y, max_z = max_voxel
-                        file.write(
-                            f'fill ~{min_x} ~{min_y} ~{min_z} ~{max_x} ~{max_y} ~{max_z} {block}\n'
-                        )
+                    write_fill(file, min_voxel, max_voxel, block)
 
     # create a dome function for each combination of `radiuses` and `blocks_and_tags`
 
