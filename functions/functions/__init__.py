@@ -47,7 +47,7 @@ def group_blocks_into_fills(blocks, max_size, min_size=(0, 0, 0)):
 
     # create ranges for iterating over the volume occupied by the block (indexed from 0)
     range_x, range_y, range_z = [
-        range(max_axis - min_axis) for min_axis, max_axis in zip(min_size, max_size)
+        range(max_coord - min_coord) for min_coord, max_coord in zip(min_size, max_size)
     ]
 
     # initialise a 3D array with block values
@@ -119,3 +119,17 @@ def group_blocks_into_fills(blocks, max_size, min_size=(0, 0, 0)):
                 if volume[x][y][z]:
                     fills.append(group_blocks(x, y, z))
     return fills
+
+
+def write_fill(function_file, min_voxel, max_voxel, block):
+    """
+    Writes a fill (or setblock) command to `function_file` for a given volume.
+    """
+    min_x, min_y, min_z = min_voxel
+    if min_voxel == max_voxel:
+        function_file.write(f'setblock ~{min_x} ~{min_y} ~{min_z} {block}\n')
+    else:
+        max_x, max_y, max_z = max_voxel
+        function_file.write(
+            f'fill ~{min_x} ~{min_y} ~{min_z} ~{max_x} ~{max_y} ~{max_z} {block}\n'
+        )

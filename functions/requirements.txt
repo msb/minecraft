@@ -5,3 +5,4 @@ dpath
 numpy
 scipy
 NBT
+git+https://github.com/BluCodeGH/bedrock.git

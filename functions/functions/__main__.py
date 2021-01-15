@@ -3,7 +3,8 @@ Script to create a set of minecraft functions depending on the generator selecte
 configuration supplied.
 
 Usage:
-    minecraftfunctions structure <nbt-file> <function-file> [<config-url>...]
+    minecraftfunctions structure java <nbt-file> <function-file> [<config-url>...]
+    minecraftfunctions structure bedrock <path-to-save> <path-to-functions> <config-url>...
     minecraftfunctions <generator> <config-url>...
     minecraftfunctions (-h | --help)
 
@@ -18,12 +19,17 @@ are *deep merged*.
 
 Generators:
 
-    minecraftfunctions structure ...
+    minecraftfunctions structure java ...
 
-        Converts an NBT structure files into an mcfunction file.
+        Converts a Java NBT structure file into an mcfunction file.
         `block_name_map` map can be used to change block name
         (for example when creating a bedrock function).
         Blocks are grouped into fills where possible.
+
+    minecraftfunctions structure bedrock ...
+
+        Scans a volume in a bedrock world for structure blocks and converts the
+        structures of any it finds to a set of bedrock functions.
 
     minecraftfunctions dome ...
 
@@ -56,7 +62,7 @@ from .ring import generate as generate_ring  # noqa F401
 from .cloudtree import generate as generate_cloudtree  # noqa F401
 from .maze import generate as generate_maze  # noqa F401
 
-from .structure import generate as generate_structure
+from .structure import convert_java, convert_bedrock
 
 
 def load_settings(urls):
@@ -75,7 +81,10 @@ def main():
     settings = load_settings(opts['<config-url>'])
 
     if opts['structure']:
-        generate_structure(opts['<nbt-file>'], opts['<function-file>'], settings)
+        if opts['java']:
+            convert_java(opts['<nbt-file>'], opts['<function-file>'], settings)
+        elif opts['bedrock']:
+            convert_bedrock(opts['<path-to-save>'], opts['<path-to-functions>'], settings)
     else:
         try:
             generator = getattr(sys.modules[__name__], f"generate_{opts['<generator>']}")
