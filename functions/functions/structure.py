@@ -80,7 +80,8 @@ def scan_volume(volume_lower, volume_upper):
 def get_block_name(strip_namespace, data_value_map, block):
     """
     A function that converts a block's name and properties into a name and data value that can be
-    used in a bedrock fill function.
+    used in a bedrock fill function. Returning a null data value indicates that the block shouldn't
+    be set (useful for doors).
     """
     name = block.name
 
@@ -99,8 +100,14 @@ def get_block_name(strip_namespace, data_value_map, block):
             raise Exception(
                 f'{name} requires a data value mapping of {data_value_name} but none is found.'
             )
+        if data_value_map_for_block[data_value_name] is None:
+            # a null data value indicates that the block shouldn't be set (useful for doors)
+            data_value = None
+            break
         # data values for different properties represent different bits and can be added.
         data_value += data_value_map_for_block[data_value_name]
+    if data_value is None:
+        return None
     return f'{name} {data_value}'
 
 
@@ -124,7 +131,9 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
             for x, y, z in scan_volume(volume_lower, volume_upper):
                 block = world.getBlock(x, y, z)
                 name = get_block_name(strip_namespace, data_value_map, block)
-                yield (x - lower_x, y - lower_y, z - lower_z, name)
+                # a null can be returned, which means it should be ignored
+                if name is not None:
+                    yield (x - lower_x, y - lower_y, z - lower_z, name)
 
         scan_volume_lower = settings['volume_lower']
         scan_volume_upper = settings['volume_upper']
@@ -142,6 +151,9 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
 
         # for each structure block
         for structure_block in structure_blocks:
+            _, structure_name = structure_block['structureName'].split(':')
+            print(structure_name)
+
             # read the block's volume
             block_volume_lower = (
                 structure_block['x'] + structure_block['xStructureOffset'],
@@ -168,8 +180,7 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
                 fills.sort(key=lambda f: order_values.get(f[2], 50))
 
             # write out the function
-            _, basename = structure_block['structureName'].split(':')
-            function_file = os.path.join(path_to_functions, f'{basename}.mcfunction')
+            function_file = os.path.join(path_to_functions, f'{structure_name}.mcfunction')
             with open(function_file, 'w') as file:
                 for min_voxel, max_voxel, name in fills:
                     write_fill(file, min_voxel, max_voxel, name)
