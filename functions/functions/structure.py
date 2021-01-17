@@ -179,8 +179,17 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
                 order_values = settings['order_values']
                 fills.sort(key=lambda f: order_values.get(f[2], 50))
 
+            # the origin is set so that the structure will be created as if you were standing in
+            # the same position as the structure block.
+
+            origin = (
+                - structure_block['xStructureOffset'],
+                - structure_block['yStructureOffset'],
+                - structure_block['zStructureOffset'],
+            )
+
             # write out the function
             function_file = os.path.join(path_to_functions, f'{structure_name}.mcfunction')
             with open(function_file, 'w') as file:
                 for min_voxel, max_voxel, name in fills:
-                    write_fill(file, min_voxel, max_voxel, name)
+                    write_fill(file, min_voxel, max_voxel, name, origin)

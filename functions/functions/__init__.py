@@ -121,15 +121,16 @@ def group_blocks_into_fills(blocks, max_size, min_size=(0, 0, 0)):
     return fills
 
 
-def write_fill(function_file, min_voxel, max_voxel, block):
+def write_fill(function_file, min_voxel, max_voxel, block, origin=(0, 0, 0)):
     """
     Writes a fill (or setblock) command to `function_file` for a given volume.
+    An optional origin can be supplied to adjust the offset the position.
     """
     min_x, min_y, min_z = min_voxel
+    x, y, z = origin
+    min_set = f'~{min_x - x} ~{min_y - y} ~{min_z - z}'
     if min_voxel == max_voxel:
-        function_file.write(f'setblock ~{min_x} ~{min_y} ~{min_z} {block}\n')
+        function_file.write(f'setblock {min_set} {block}\n')
     else:
         max_x, max_y, max_z = max_voxel
-        function_file.write(
-            f'fill ~{min_x} ~{min_y} ~{min_z} ~{max_x} ~{max_y} ~{max_z} {block}\n'
-        )
+        function_file.write(f'fill {min_set} ~{max_x - x} ~{max_y - y} ~{max_z - z} {block}\n')
