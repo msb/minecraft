@@ -1,0 +1,267 @@
+# https://minecraft-el.gamepedia.com/Data_values
+
+strip_namespace: true
+
+# The volume that the `structure bedrock` tool scans for structure blocks
+volume_lower: [-100, 0, -100]
+volume_upper: [100, 30, 100]
+
+common_data_values:
+    top_slot_bit: &top_slot_bit
+        'top_slot_bit:0': 0
+        'top_slot_bit:1': 8
+    wood_type: &wood_type
+        'wood_type:oak': 0
+        'wood_type:spruce': 1
+        'wood_type:birch': 2
+        'wood_type:jungle': 3
+        'wood_type:acacia': 4
+        'wood_type:dark_oak': 5
+    color: &color
+        'color:white': 0
+        'color:orange': 1
+        'color:magenta': 2
+        'color:light_blue': 3
+        'color:yellow': 4
+        'color:lime': 5
+        'color:pink': 6
+        'color:grey': 7
+        'color:light_grey': 8 # TODO both?
+        'color:silver': 8 # TODO both?
+        'color:cyan': 9
+        'color:purple': 10
+        'color:blue': 11
+        'color:brown': 12
+        'color:green': 13
+        'color:red': 14
+        'color:black': 15
+    direction: &direction
+        'direction:0': 0
+        'direction:1': 1
+        'direction:2': 2
+        'direction:3': 3
+    stairs: &stairs
+        'weirdo_direction:0': 0
+        'weirdo_direction:1': 1
+        'weirdo_direction:2': 2
+        'weirdo_direction:3': 3
+        'upside_down_bit:0': 0
+        'upside_down_bit:1': 4
+    facing_direction: &facing_direction
+        'facing_direction:0': 0
+        'facing_direction:1': 1
+        'facing_direction:2': 2
+        'facing_direction:3': 3
+        'facing_direction:4': 4
+        'facing_direction:5': 5
+    block: &block
+        'chisel_type:default': 0
+        'chisel_type:chiseled': 1
+        'chisel_type:lines': 2
+        'chisel_type:smooth': 3
+        'pillar_axis:x': 4 # TODO not sure
+        'pillar_axis:y': 16 # TODO not sure
+        'pillar_axis:z': 8 # TODO  not sure
+    door: &door
+        <<: *direction
+        "door_hinge_bit:0": 0
+        "door_hinge_bit:1": 4
+        "open_bit:0": 0
+        "open_bit:1": 0 #
+        "upper_block_bit:0": 0
+        "upper_block_bit:1": null #
+
+data_value_map:
+    ladder:
+        <<: *facing_direction
+    wall_sign:
+        <<: *facing_direction
+    stone_slab:
+        'stone_slab_type:smooth_stone': 0
+        'stone_slab_type:sandstone': 1
+        'stone_slab_type:wood': 2
+        'stone_slab_type:cobblestone': 3
+        'stone_slab_type:brick': 4
+        'stone_slab_type:stone_brick': 5
+        'stone_slab_type:quartz': 6
+        'stone_slab_type:nether_brick': 7
+        <<: *top_slot_bit
+    wooden_slab:
+        <<: *wood_type
+        <<: *top_slot_bit
+    double_wooden_slab:
+        <<: *wood_type
+        <<: *top_slot_bit
+    lantern:
+        'hanging:0': 0
+        'hanging:1': 1
+    stained_hardened_clay:
+        <<: *color
+    concrete:
+        <<: *color
+    stained_glass_pane:
+        <<: *color
+    stained_glass:
+        <<: *color
+    redstone_wire:
+        'redstone_signal:0': 0 # can be 0-15
+    unpowered_repeater:
+        <<: *direction
+        'repeater_delay:0': 0
+        'repeater_delay:1': 4
+        'repeater_delay:2': 8
+        'repeater_delay:3': 12
+    piston:
+        <<: *facing_direction
+    water:
+        'liquid_depth:0': 0
+        'liquid_depth:1': 1
+        'liquid_depth:2': 2
+        'liquid_depth:3': 3
+        'liquid_depth:4': 4
+        'liquid_depth:5': 5
+        'liquid_depth:6': 6
+        'liquid_depth:7': 7
+        'liquid_depth:8': 8
+        'liquid_depth:9': 9
+        'liquid_depth:10': 10
+        'liquid_depth:11': 11
+        'liquid_depth:12': 12
+        'liquid_depth:13': 13
+        'liquid_depth:14': 14
+        'liquid_depth:15': 15
+    fence:
+        <<: *wood_type
+    carpet:
+        <<: *color
+    planks:
+        <<: *wood_type
+    flower_pot:
+        'update_bit:0': 0
+        'update_bit:1': 1
+    farmland:
+        'moisturized_amount:0': 0
+        'moisturized_amount:1': 1
+        'moisturized_amount:2': 2
+        'moisturized_amount:3': 3
+        'moisturized_amount:4': 4
+        'moisturized_amount:5': 5
+        'moisturized_amount:6': 6
+        'moisturized_amount:7': 7
+    potatoes:
+        'growth:0': 0
+        'growth:1': 1
+        'growth:2': 2
+        'growth:3': 3
+        'growth:4': 4
+        'growth:5': 5
+        'growth:6': 6
+        'growth:7': 7
+    bed:
+        <<: *direction
+        'head_piece_bit:0': null
+        'head_piece_bit:1': 4
+        'occupied_bit:0': 0
+        'occupied_bit:1': 8
+    stone:
+        'stone_type:stone': 0
+        'stone_type:granite': 1
+        'stone_type:granite_smooth': 2
+        'stone_type:diorite': 3
+        'stone_type:diorite_smooth': 4
+        'stone_type:andesite': 5
+        'stone_type:andesite_smooth': 6
+    dirt:
+        'dirt_type:normal': 0
+        'dirt_type:coarse': 1
+    quartz_block:
+        <<: *block
+    purpur_block:
+        <<: *block
+    torch:
+        'torch_facing_direction:west': 1
+        'torch_facing_direction:east': 2
+        'torch_facing_direction:north': 3
+        'torch_facing_direction:south': 4
+        'torch_facing_direction:up': 5
+    red_nether_brick_stairs:
+        <<: *stairs
+    quartz_stairs:
+        <<: *stairs
+    stone_stairs:
+        <<: *stairs
+    smooth_quartz_stairs:
+        <<: *stairs
+    crimson_door:
+        <<: *door
+    dark_oak_door:
+        <<: *door
+    chain:
+        'pillar_axis:x': 2
+        'pillar_axis:y': 4
+        'pillar_axis:z': 8
+    furnace:
+        <<: *facing_direction
+    chest:
+        <<: *facing_direction
+    acacia_wall_sign:
+        <<: *facing_direction
+    warped_wall_sign:
+        <<: *facing_direction
+    soul_campfire:
+        <<: *direction
+        "extinguished:0": 0
+        "extinguished:1": 4
+    activator_rail:
+        "rail_direction:0": 0
+        "rail_direction:1": 1
+        "rail_direction:2": 2
+        "rail_direction:3": 3
+        "rail_direction:4": 4
+        "rail_direction:5": 5
+        "rail_data_bit:0": 0
+        "rail_data_bit:1": 8
+    structure_block:
+        "structure_block_type:save": null
+    wooden_button:
+        <<: *facing_direction
+        "button_pressed_bit:0": 0
+        "button_pressed_bit:1": 8
+
+order_values:
+    "lantern 1": 100
+    "observer 0": 100
+    "observer 1": 100
+    "observer 2": 100
+    "observer 3": 100
+    "observer 4": 100
+    "observer 5": 100
+    "redstone_torch 1": 100
+    "redstone_torch 2": 100
+    "redstone_torch 3": 100
+    "redstone_torch 4": 100
+    "redstone_torch 5": 100
+    "redstone_wire": 100
+    "acacia_button 1": 100
+    "golden_rail 0": 100
+    "golden_rail 1": 100
+    "golden_rail 2": 100
+    "golden_rail 3": 100
+    "golden_rail 4": 100
+    "golden_rail 5": 100
+    "rail 0": 100
+    "rail 1": 100
+    "rail 2": 100
+    "rail 3": 100
+    "rail 4": 100
+    "rail 5": 100
+    "rail 6": 100
+    "rail 7": 100
+    "rail 8": 100
+    "rail 9": 100
+    "repeater 1": 100
+    "torch 1": 100
+    "torch 2": 100
+    "torch 3": 100
+    "torch 4": 100
+    "torch 5": 100

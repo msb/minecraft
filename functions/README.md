@@ -56,5 +56,5 @@ a world for structure blocks and converts the structures of any it finds to a se
 functions as follows:
 
 ```sh
-minecraftfunctions structure bedrock $PATH_TO_BEDROCK_WORLD $PATH_FOR_BEDROCK_FUNCTIONS $PWD/config/structure.yaml
+minecraftfunctions structure bedrock $PATH_TO_BEDROCK_WORLD $PATH_FOR_BEDROCK_FUNCTIONS $PWD/config/structure.bedrock.yaml
 ```
