@@ -70,6 +70,9 @@ common_data_values:
         "open_bit:1": 0 #
         "upper_block_bit:0": 0
         "upper_block_bit:1": null #
+    hanging: &hanging
+        'hanging:0': 0
+        'hanging:1': 1
 
 data_value_map:
     ladder:
@@ -93,8 +96,9 @@ data_value_map:
         <<: *wood_type
         <<: *top_slot_bit
     lantern:
-        'hanging:0': 0
-        'hanging:1': 1
+        <<: *hanging
+    soul_lantern:
+        <<: *hanging
     stained_hardened_clay:
         <<: *color
     concrete:
@@ -184,13 +188,77 @@ data_value_map:
         'torch_facing_direction:north': 3
         'torch_facing_direction:south': 4
         'torch_facing_direction:up': 5
-    red_nether_brick_stairs:
+    oak_stairs:
         <<: *stairs
-    quartz_stairs:
+    spruce_stairs:
+        <<: *stairs
+    birch_stairs:
+        <<: *stairs
+    jungle_stairs:
+        <<: *stairs
+    acacia_stairs:
+        <<: *stairs
+    dark_oak_stairs:
+        <<: *stairs
+    crimson_stairs:
+        <<: *stairs
+    warped_stairs:
+        <<: *stairs
+    normal_stone_stairs:
+        <<: *stairs
+    granite_stairs:
+        <<: *stairs
+    polished_granite_stairs:
+        <<: *stairs
+    diorite_stairs:
+        <<: *stairs
+    polished_diorite_stairs:
+        <<: *stairs
+    andesite_stairs:
+        <<: *stairs
+    polished_andesite_stairs:
         <<: *stairs
     stone_stairs:
         <<: *stairs
+    mossy_cobblestone_stairs:
+        <<: *stairs
+    stone_brick_stairs:
+        <<: *stairs
+    mossy_stone_brick_stairs:
+        <<: *stairs
+    brick_stairs:
+        <<: *stairs
+    end_brick_stairs:
+        <<: *stairs
+    nether_brick_stairs:
+        <<: *stairs
+    red_nether_brick_stairs:
+        <<: *stairs
+    sandstone_stairs:
+        <<: *stairs
+    smooth_sandstone_stairs:
+        <<: *stairs
+    red_sandstone_stairs:
+        <<: *stairs
+    smooth_red_sandstone_stairs:
+        <<: *stairs
+    quartz_stairs:
+        <<: *stairs
     smooth_quartz_stairs:
+        <<: *stairs
+    purpur_stairs:
+        <<: *stairs
+    prismarine_stairs:
+        <<: *stairs
+    prismarine_bricks_stairs:
+        <<: *stairs
+    dark_prismarine_stairs:
+        <<: *stairs
+    blackstone_stairs:
+        <<: *stairs
+    polished_blackstone_stairs:
+        <<: *stairs
+    polished_blackstone_brick_stairs:
         <<: *stairs
     crimson_door:
         <<: *door
