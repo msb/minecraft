@@ -130,10 +130,11 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
 
             for x, y, z in scan_volume(volume_lower, volume_upper):
                 block = world.getBlock(x, y, z)
-                name = get_block_name(strip_namespace, data_value_map, block)
-                # a null can be returned, which means it should be ignored
-                if name is not None:
-                    yield (x - lower_x, y - lower_y, z - lower_z, name)
+                if block is not None:
+                    name = get_block_name(strip_namespace, data_value_map, block)
+                    # a null can be returned, which means it should be ignored
+                    if name is not None:
+                        yield (x - lower_x, y - lower_y, z - lower_z, name)
 
         scan_volume_lower = settings['volume_lower']
         scan_volume_upper = settings['volume_upper']
