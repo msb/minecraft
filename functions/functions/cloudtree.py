@@ -47,7 +47,7 @@ TOP_CROSS_SECTION = (((0, 0), (0, 0)),)
 CROSS_SECTIONS = [TOP_CROSS_SECTION] + [
     generate_cross_section(cross_section) for cross_section in PARTIAL_CROSS_SECTIONS
 ]
-# Affine transforms defining all 6 possible
+# Affine transforms defining all 6 possible rotations
 DIRECTIONS = (
     np.array(((1, 0, 0, 0), (0, 1, 0, 0), (0, 0, 1, 0), (0, 0, 0, 1))),
     np.array(((1, 0, 0, 0), (0, 0, -1, 0), (0, 1, 0, 0), (0, 0, 0, 1))),
