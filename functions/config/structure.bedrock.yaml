@@ -73,6 +73,11 @@ common_data_values:
     hanging: &hanging
         'hanging:0': 0
         'hanging:1': 1
+    torch: &torch
+        'torch_facing_direction:west': 1
+        'torch_facing_direction:east': 2
+        'torch_facing_direction:north': 3
+        'torch_facing_direction:south': 4
 
 data_value_map:
     ladder:
@@ -183,11 +188,13 @@ data_value_map:
     purpur_block:
         <<: *block
     torch:
-        'torch_facing_direction:west': 1
-        'torch_facing_direction:east': 2
-        'torch_facing_direction:north': 3
-        'torch_facing_direction:south': 4
+        <<: *torch
+    torch:
+        <<: *torch
         'torch_facing_direction:up': 5
+    redstone_torch:
+        <<: *torch
+        'torch_facing_direction:top': 5
     oak_stairs:
         <<: *stairs
     spruce_stairs:
