@@ -296,6 +296,14 @@ data_value_map:
         "button_pressed_bit:0": 0
         "button_pressed_bit:1": 8
 
+rotation_groups:
+    - ['direction:0', 'direction:1', 'direction:2', 'direction:3']
+    - ['weirdo_direction:0', 'weirdo_direction:2', 'weirdo_direction:1', 'weirdo_direction:3']
+    - ['facing_direction:2', 'facing_direction:5', 'facing_direction:3', 'facing_direction:4']
+    - ['torch_facing_direction:north', 'torch_facing_direction:east', 'torch_facing_direction:south', 'torch_facing_direction:west']
+    - ["rail_direction:0", "rail_direction:1", "rail_direction:0", "rail_direction:1"]
+    - ["rail_direction:2", "rail_direction:5", rail_direction:4", "rail_direction:3"]
+
 order_values:
     "lantern 1": 100
     "observer 0": 100
