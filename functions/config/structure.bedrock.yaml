@@ -67,9 +67,9 @@ common_data_values:
         "door_hinge_bit:0": 0
         "door_hinge_bit:1": 4
         "open_bit:0": 0
-        "open_bit:1": 0 #
+        "open_bit:1": 0 # always create closed door
         "upper_block_bit:0": 0
-        "upper_block_bit:1": null #
+        "upper_block_bit:1": null # don't render this block of the door
     hanging: &hanging
         'hanging:0': 0
         'hanging:1': 1
@@ -78,12 +78,44 @@ common_data_values:
         'torch_facing_direction:east': 2
         'torch_facing_direction:north': 3
         'torch_facing_direction:south': 4
+    repeater: &repeater
+        <<: *direction
+        'repeater_delay:0': 0
+        'repeater_delay:1': 4
+        'repeater_delay:2': 8
+        'repeater_delay:3': 12
+    comparator: &comparator
+        <<: *direction
+        'output_subtract_bit:0': 0
+        'output_subtract_bit:1': 4
+        'output_lit_bit:0': 0
+        'output_lit_bit:1': 8
+    sandstone: &sandstone
+        'sand_stone_type:chiseled': 1
+        'sand_stone_type:cut': 2
+        'sand_stone_type:smooth': 3
 
 data_value_map:
+    sandstone:
+        <<: *sandstone
+    red_sandstone:
+        <<: *sandstone
+    hopper:
+        <<: *facing_direction
+        "toggle_bit:0": 0
+        "toggle_bit:8": 8
+    dropper: # TODO extra nbt data
+        <<: *facing_direction
+        "triggered_bit:0": 0
+        "triggered_bit:8": 8
     ladder:
         <<: *facing_direction
     wall_sign:
         <<: *facing_direction
+    observer:
+        <<: *facing_direction
+        'powered_bit:0': 0
+        'powered_bit:1': 8
     stone_slab:
         'stone_slab_type:smooth_stone': 0
         'stone_slab_type:sandstone': 1
@@ -113,13 +145,32 @@ data_value_map:
     stained_glass:
         <<: *color
     redstone_wire:
-        'redstone_signal:0': 0 # can be 0-15
+        'redstone_signal:0': 0
+        'redstone_signal:1': 1
+        'redstone_signal:2': 2
+        'redstone_signal:3': 3
+        'redstone_signal:4': 4
+        'redstone_signal:5': 5
+        'redstone_signal:6': 6
+        'redstone_signal:7': 7
+        'redstone_signal:8': 8
+        'redstone_signal:9': 9
+        'redstone_signal:10': 10
+        'redstone_signal:11': 11
+        'redstone_signal:12': 12
+        'redstone_signal:13': 13
+        'redstone_signal:14': 14
+        'redstone_signal:15': 15
+    powered_repeater:
+        <<: *repeater
     unpowered_repeater:
-        <<: *direction
-        'repeater_delay:0': 0
-        'repeater_delay:1': 4
-        'repeater_delay:2': 8
-        'repeater_delay:3': 12
+        <<: *repeater
+    powered_comparator:
+        <<: *comparator
+    unpowered_comparator:
+        <<: *comparator
+    sticky_piston:
+        <<: *facing_direction
     piston:
         <<: *facing_direction
     water:
@@ -189,10 +240,11 @@ data_value_map:
         <<: *block
     torch:
         <<: *torch
-    torch:
-        <<: *torch
         'torch_facing_direction:up': 5
     redstone_torch:
+        <<: *torch
+        'torch_facing_direction:top': 5
+    unlit_redstone_torch:
         <<: *torch
         'torch_facing_direction:top': 5
     oak_stairs:
@@ -298,10 +350,22 @@ data_value_map:
         "rail_data_bit:1": 8
     structure_block:
         "structure_block_type:save": null
+    structure_void:
+        "structure_void_type:void": null
     wooden_button:
         <<: *facing_direction
         "button_pressed_bit:0": 0
         "button_pressed_bit:1": 8
+    tnt:
+        "allow_underwater_bit:0": 0
+        "allow_underwater_bit:1": 1
+        "explode_bit:0": 0
+        "explode_bit:1": 2
+    stonebrick:
+        "stone_brick_type:cracked": 1
+        "stone_brick_type:mossy": 2
+        "stone_brick_type:chiseled": 3
+        "stone_brick_type:smooth": 4
 
 rotation_groups:
     - ['direction:0', 'direction:1', 'direction:2', 'direction:3']
@@ -309,42 +373,16 @@ rotation_groups:
     - ['facing_direction:2', 'facing_direction:5', 'facing_direction:3', 'facing_direction:4']
     - ['torch_facing_direction:north', 'torch_facing_direction:east', 'torch_facing_direction:south', 'torch_facing_direction:west']
     - ["rail_direction:0", "rail_direction:1", "rail_direction:0", "rail_direction:1"]
-    - ["rail_direction:2", "rail_direction:5", rail_direction:4", "rail_direction:3"]
+    - ["rail_direction:2", "rail_direction:5", "rail_direction:4", "rail_direction:3"]
 
 order_values:
-    "lantern 1": 100
-    "observer 0": 100
-    "observer 1": 100
-    "observer 2": 100
-    "observer 3": 100
-    "observer 4": 100
-    "observer 5": 100
-    "redstone_torch 1": 100
-    "redstone_torch 2": 100
-    "redstone_torch 3": 100
-    "redstone_torch 4": 100
-    "redstone_torch 5": 100
+    "lantern": 100
+    "soul_lantern": 100
+    "observer": 100
+    "torch": 100
+    "redstone_torch": 100
     "redstone_wire": 100
-    "acacia_button 1": 100
-    "golden_rail 0": 100
-    "golden_rail 1": 100
-    "golden_rail 2": 100
-    "golden_rail 3": 100
-    "golden_rail 4": 100
-    "golden_rail 5": 100
-    "rail 0": 100
-    "rail 1": 100
-    "rail 2": 100
-    "rail 3": 100
-    "rail 4": 100
-    "rail 5": 100
-    "rail 6": 100
-    "rail 7": 100
-    "rail 8": 100
-    "rail 9": 100
-    "repeater 1": 100
-    "torch 1": 100
-    "torch 2": 100
-    "torch 3": 100
-    "torch 4": 100
-    "torch 5": 100
+    "wooden_button": 100
+    "activator_rail": 100
+    "powered_repeater": 100
+    "unpowered_repeater": 100
