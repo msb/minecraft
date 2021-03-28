@@ -233,7 +233,8 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
             # order the fills, if an order has been defined
             if 'order_values' in settings:
                 order_values = settings['order_values']
-                fills.sort(key=lambda f: order_values.get(f[2][0], 50))
+                # only sort by the name (not the data value)
+                fills.sort(key=lambda f: order_values.get(f[2][0].split()[0], 50))
 
             # the origin is set so that the structure will be created as if you were standing in
             # the same position as the structure block.
