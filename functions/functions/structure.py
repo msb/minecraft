@@ -1,4 +1,5 @@
 import os
+import re
 import numpy as np
 import bedrock
 from nbt.nbt import NBTFile, TAG_List, TAG_Compound
@@ -12,13 +13,60 @@ ROTATION_MATRICES = (
     np.array(((0, 1, 0), (-1, 0, 0), (0, 0, 1))),
 )
 
+# Used to test for a block being air.
+AIR = ('air', )
 
-def rotate_90(voxel, origin=(0, 0, 0), times=0):
+# An instruction to void all air in a structure
+VOID_AIR_INSTRUCTION = 'void_air'
+
+
+class Plan:
     """
-    Rotates `voxel` about `origin` in the horizontal plane by 90 degrees `times` times.
+    Represents a function plan that defines how a basic structure should be converted to a
+    function. There can be many plans for a structure (wall signs in the structure) defining many
+    functions.
     """
-    rotated = ROTATION_MATRICES[times].dot((voxel[0] - origin[0], voxel[2] - origin[2], 0))
-    return (rotated[0] + origin[0], voxel[1], rotated[1] + origin[2])
+    def __init__(self, wall_sign_text='#0\n0'):
+        """
+        Accepts and parses wall sign text into a `Plan`. The text s/b a set of instructions
+        delimited by comma or newline. The 1st instructions is the `name` and the 2nd is the 
+        `rotation`. Other instructions can be either a `VOID_AIR_INSTRUCTION` or a number of 
+        `transmutations` that each tranmute one type of block to another such as
+        "glass>stained_glass 15". If the block has rotations, no data value should be provided
+        Eg. "sandstone_stairs>oak_stairs".
+        """
+        parts = re.split('\n|,', wall_sign_text[1:])
+        self.name = parts[0]
+        self.rotation = int(parts[1])
+        self.transmutations = {before: after for before, after in [
+            transmutation.split('>') for transmutation in parts[2:]
+            if transmutation and transmutation != VOID_AIR_INSTRUCTION
+        ]}
+        self.do_air = VOID_AIR_INSTRUCTION in parts[2:]
+
+    def transmute(self, name):
+        """
+        As described in `__init__` the `name` block is transmuted to another block if it matched
+        one of the define `transmutations`
+        """
+        # we use modulus because name can be an array of 1 if the block has no rotations
+        rotated_name = name[self.rotation % len(name)]
+        parts = rotated_name.split()
+        if len(parts) == 2 and parts[0] in self.transmutations:
+            # this is the rotation case
+            return ' '.join((self.transmutations[parts[0]], parts[1]))
+        elif rotated_name in self.transmutations:
+            return self.transmutations[rotated_name]
+        return rotated_name
+
+    def rotation(self, voxel, origin):
+        """
+        Rotates `voxel` about `origin` in the horizontal plane by 90 degrees `rotation` times.
+        """
+        rotated = ROTATION_MATRICES[self.rotation].dot(
+            (voxel[0] - origin[0], voxel[2] - origin[2], 0)
+        )
+        return (rotated[0] + origin[0], voxel[1], rotated[1] + origin[2])
 
 
 def unpack_nbt(tag):
@@ -129,7 +177,7 @@ def get_block_name(strip_namespace, data_value_map, rotation_group_map, block):
         _, name = name.split(':')
 
     if len(block.properties) == 0:
-        # if there aren't any propertied then just return the name.
+        # if there aren't any properties then just return the name.
         return [name]
 
     data_value_map_for_block = data_value_map.get(name, {})
@@ -174,7 +222,31 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
             item: group for group in settings.get('rotation_groups', []) for item in group
         }
 
-        def generate_volume(volume_lower, volume_upper):
+        def scan_for_plans(structure_lower, structure_upper):
+            """
+            Searches a structure volume for wall signs with text beginning with "#". These are
+            converting into function `Plan` objects and are returned in a map keyed with their
+            position. At least one "identity" plan (named "0") is always returned so that at least
+            one function is created.
+            """
+            # initialises the map with an identity plan.
+            plans = {(0, -1, 0): Plan()}
+
+            for x, y, z in scan_volume(structure_lower, structure_upper):
+                block = world.getBlock(x, y, z)
+                if block and 'minecraft:wall_sign' in block.name:
+                    sign = {
+                        tag.name: tag.payload for tag in block.nbt.payload
+                    }
+                    if sign['Text'] and sign['Text'].startswith('#'):
+                        if sign['Text'].startswith('#0,'):
+                            # If an identity plan has been expicitly defined then remove the
+                            # implicit one.
+                            del plans[(0, -1, 0)]
+                        plans[(x, y, z)] = Plan(sign['Text'])
+            return plans
+
+        def generate_volume(volume_lower, volume_upper, plans):
             """
             A generator that yields all the blocks in a particular world's volume. The yielded
             blocks are tuples in a form accepted by group_blocks_into_fills().
@@ -187,8 +259,8 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
                     name = get_block_name(
                         strip_namespace, data_value_map, rotation_group_map, block
                     )
-                    # a null can be returned, which means it should be ignored
-                    if name is not None:
+                    # ignore the block if either it's name is null or it's a plan
+                    if not (name is None or (x, y, z) in plans):
                         yield (x - lower_x, y - lower_y, z - lower_z, name)
 
         scan_volume_lower = settings['volume_lower']
@@ -196,7 +268,7 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
 
         structure_blocks = []
 
-        # scan the volume for structure block
+        # scan the volume for structure blocks
         for x, y, z in scan_volume(scan_volume_lower, scan_volume_upper):
             block = world.getBlock(x, y, z)
             if block and block.name == 'minecraft:structure_block':
@@ -221,9 +293,13 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
                 block_volume_lower[1] + structure_block['yStructureSize'] - 1,
                 block_volume_lower[2] + structure_block['zStructureSize'] - 1,
             )
+
+            # scan a structure's volume for function plans
+            plans = scan_for_plans(block_volume_lower, block_volume_upper)
+
             # convert the block's volume into a list of fills
             fills = group_blocks_into_fills(
-                generate_volume(block_volume_lower, block_volume_upper),
+                generate_volume(block_volume_lower, block_volume_upper, plans),
                 [
                     upper_coord + 1 - lower_coord
                     for lower_coord, upper_coord in zip(block_volume_lower, block_volume_upper)
@@ -245,19 +321,18 @@ def convert_bedrock(path_to_save, path_to_functions, settings):
                 - structure_block['zStructureOffset'],
             )
 
-            # write out a function for each 90 degree rotation.
-            for rotation in range(4):
+            # write out a function for each plan
+            for plan in plans.values():
                 function_file = os.path.join(
-                    path_to_functions, f'{structure_name}.{rotation}.mcfunction'
+                    path_to_functions, f'{structure_name}.{plan.name}.mcfunction'
                 )
                 with open(function_file, 'w') as file:
                     for min_voxel, max_voxel, name in fills:
-                        write_fill(
-                            file,
-                            rotate_90(min_voxel, origin, rotation),
-                            rotate_90(max_voxel, origin, rotation),
-                            # we use modulus because name can be an array of 1 if the block has no
-                            # rotations
-                            name[rotation % len(name)],
-                            origin
-                        )
+                        if name != AIR or (name == AIR and plan.do_air):
+                            write_fill(
+                                file,
+                                plan.rotate(min_voxel, origin),
+                                plan.rotate(max_voxel, origin),
+                                plan.transmute(name),
+                                origin
+                            )
