@@ -62,7 +62,8 @@ from .ring import generate as generate_ring  # noqa F401
 from .cloudtree import generate as generate_cloudtree  # noqa F401
 from .maze import generate as generate_maze  # noqa F401
 
-from .structure import convert_java, convert_bedrock
+from .structure.java import convert as convert_java
+from .structure.bedrock import convert as convert_bedrock
 
 
 def load_settings(urls):

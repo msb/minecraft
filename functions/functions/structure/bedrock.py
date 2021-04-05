@@ -2,8 +2,7 @@ import os
 import re
 import numpy as np
 import bedrock
-from nbt.nbt import NBTFile, TAG_List, TAG_Compound
-from . import group_blocks_into_fills, write_fill
+from .. import group_blocks_into_fills, write_fill
 
 # A list of 2D affine transform matrices for the rotations: 0, 90, 180, 270.
 ROTATION_MATRICES = (
@@ -29,8 +28,8 @@ class Plan:
     def __init__(self, wall_sign_text='#0\n0'):
         """
         Accepts and parses wall sign text into a `Plan`. The text s/b a set of instructions
-        delimited by comma or newline. The 1st instructions is the `name` and the 2nd is the 
-        `rotation`. Other instructions can be either a `VOID_AIR_INSTRUCTION` or a number of 
+        delimited by comma or newline. The 1st instructions is the `name` and the 2nd is the
+        `rotation`. Other instructions can be either a `VOID_AIR_INSTRUCTION` or a number of
         `transmutations` that each tranmute one type of block to another such as
         "glass>stained_glass 15". If the block has rotations, no data value should be provided
         Eg. "sandstone_stairs>oak_stairs".
@@ -59,7 +58,7 @@ class Plan:
             return self.transmutations[rotated_name]
         return rotated_name
 
-    def rotation(self, voxel, origin):
+    def rotate(self, voxel, origin):
         """
         Rotates `voxel` about `origin` in the horizontal plane by 90 degrees `rotation` times.
         """
@@ -67,66 +66,6 @@ class Plan:
             (voxel[0] - origin[0], voxel[2] - origin[2], 0)
         )
         return (rotated[0] + origin[0], voxel[1], rotated[1] + origin[2])
-
-
-def unpack_nbt(tag):
-    """
-    Unpack an NBT tag into a native Python data structure.
-    """
-    if isinstance(tag, TAG_List):
-        return [unpack_nbt(i) for i in tag.tags]
-    elif isinstance(tag, TAG_Compound):
-        return {i.name: unpack_nbt(i) for i in tag.tags}
-    else:
-        return tag.value
-
-
-def convert_java(nbt_file, function_file, settings):
-    """
-    Converts an NBT structure files into an mcfunction file.
-    `block_name_map` map can be used to change block name
-    (for example when creating a bedrock function).
-    Blocks are grouped into fills where possible.
-    """
-    block_name_map = settings.get('block_name_map', {})
-    strip_namespace = settings.get('strip_namespace')
-
-    structure = unpack_nbt(NBTFile(nbt_file, 'rb'))
-
-    # create a list of mapped blocks
-
-    blocks = []
-
-    for block in structure['blocks']:
-        x, y, z = block['pos']
-        block_data = structure['palette'][block['state']]
-        name = block_data['Name']
-        if strip_namespace:
-            _, name = name.split(':')
-        if 'Properties' in block_data:
-            properties = [
-                f'{key}={value}' for key, value in block_data['Properties'].items()
-                # any properties with `false` values are assumed to be default and are ignored
-                if value != 'false'
-            ]
-            name = f"{name}[{','.join(properties)}]"
-        # change the block name if a map exists
-        if name in block_name_map:
-            name = block_name_map[name]
-        if name is not None:
-            blocks.append((x, y, z, name))
-
-    # try to group contiguous blocks into fills
-    fills = group_blocks_into_fills(blocks, structure['size'])
-
-    if 'order_values' in settings:
-        order_values = settings['order_values']
-        fills.sort(key=lambda f: order_values.get(f[2], 50))
-
-    # write out the function
-    with open(function_file, 'w') as file:
-        for min_voxel, max_voxel, name in fills:
-            write_fill(file, min_voxel, max_voxel, name)
 
 
 def scan_volume(volume_lower, volume_upper):
@@ -207,7 +146,7 @@ def get_block_name(strip_namespace, data_value_map, rotation_group_map, block):
     return [f'{name} {data_value}' for data_value in data_values]
 
 
-def convert_bedrock(path_to_save, path_to_functions, settings):
+def convert(path_to_save, path_to_functions, settings):
     """
     Scans a volume in a bedrock world for structure blocks and converts the structures of any it
     finds to a set of bedrock functions.
