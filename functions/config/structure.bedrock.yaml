@@ -2,10 +2,6 @@
 
 strip_namespace: true
 
-# The volume that the `structure bedrock` tool scans for structure blocks
-volume_lower: [-100, 0, -100]
-volume_upper: [100, 30, 100]
-
 common_data_values:
     top_slot_bit: &top_slot_bit
         'top_slot_bit:0': 0
@@ -136,6 +132,8 @@ data_value_map:
         <<: *hanging
     soul_lantern:
         <<: *hanging
+    wool:
+        <<: *color
     stained_hardened_clay:
         <<: *color
     concrete:

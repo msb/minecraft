@@ -18,6 +18,10 @@ AIR = ('air', )
 # An instruction to void all air in a structure
 VOID_AIR_INSTRUCTION = 'void_air'
 
+# A volume that contains a set of structure blocks that, in turn, define volumes containing
+# structures and the namespaces they belong to.
+WORLD_INDEX_VOLUME = ((-1, 0, -1), (1, 255, 1))
+
 
 class Plan:
     """
@@ -146,6 +150,61 @@ def get_block_name(strip_namespace, data_value_map, rotation_group_map, block):
     return [f'{name} {data_value}' for data_value in data_values]
 
 
+def structure_block_volume(structure_block):
+    """
+    Calculates and returns a world volume from a structure block's volume. The world volume
+    returned in the form: ((x_lower, y_lower, z_lower), (x_upper, y_upper, z_upper)).
+    """
+    block_volume_lower = (
+        structure_block['x'] + structure_block['xStructureOffset'],
+        structure_block['y'] + structure_block['yStructureOffset'],
+        structure_block['z'] + structure_block['zStructureOffset'],
+    )
+    return (block_volume_lower, (
+        block_volume_lower[0] + structure_block['xStructureSize'] - 1,
+        block_volume_lower[1] + structure_block['yStructureSize'] - 1,
+        block_volume_lower[2] + structure_block['zStructureSize'] - 1,
+    ))
+
+
+def volume_structure_blocks(world, volume_lower, volume_upper):
+    """
+    The generator that scans a volume in a world and yields only structure blocks.
+    """
+    for x, y, z in scan_volume(volume_lower, volume_upper):
+        block = world.getBlock(x, y, z)
+        if block and block.name == 'minecraft:structure_block':
+            yield {
+                **{tag.name: tag.payload for tag in block.nbt.payload},
+                'x': x, 'y': y, 'z': z
+            }
+
+
+def scan_for_plans(world, structure_lower, structure_upper):
+    """
+    Searches a structure volume for wall signs with text beginning with "#". These are
+    converting into function `Plan` objects and are returned in a map keyed with their
+    position. At least one "identity" plan (named "0") is always returned so that at least
+    one function is created.
+    """
+    # initialises the map with an identity plan.
+    plans = {(0, -1, 0): Plan()}
+
+    for x, y, z in scan_volume(structure_lower, structure_upper):
+        block = world.getBlock(x, y, z)
+        if block and 'minecraft:wall_sign' in block.name:
+            sign = {
+                tag.name: tag.payload for tag in block.nbt.payload
+            }
+            if sign['Text'] and sign['Text'].startswith('#'):
+                if sign['Text'].startswith('#0,'):
+                    # If an identity plan has been expicitly defined then remove the
+                    # implicit one.
+                    del plans[(0, -1, 0)]
+                plans[(x, y, z)] = Plan(sign['Text'])
+    return plans
+
+
 def convert(path_to_save, path_to_functions, settings):
     """
     Scans a volume in a bedrock world for structure blocks and converts the structures of any it
@@ -160,30 +219,6 @@ def convert(path_to_save, path_to_functions, settings):
         rotation_group_map = {
             item: group for group in settings.get('rotation_groups', []) for item in group
         }
-
-        def scan_for_plans(structure_lower, structure_upper):
-            """
-            Searches a structure volume for wall signs with text beginning with "#". These are
-            converting into function `Plan` objects and are returned in a map keyed with their
-            position. At least one "identity" plan (named "0") is always returned so that at least
-            one function is created.
-            """
-            # initialises the map with an identity plan.
-            plans = {(0, -1, 0): Plan()}
-
-            for x, y, z in scan_volume(structure_lower, structure_upper):
-                block = world.getBlock(x, y, z)
-                if block and 'minecraft:wall_sign' in block.name:
-                    sign = {
-                        tag.name: tag.payload for tag in block.nbt.payload
-                    }
-                    if sign['Text'] and sign['Text'].startswith('#'):
-                        if sign['Text'].startswith('#0,'):
-                            # If an identity plan has been expicitly defined then remove the
-                            # implicit one.
-                            del plans[(0, -1, 0)]
-                        plans[(x, y, z)] = Plan(sign['Text'])
-            return plans
 
         def generate_volume(volume_lower, volume_upper, plans):
             """
@@ -202,39 +237,20 @@ def convert(path_to_save, path_to_functions, settings):
                     if not (name is None or (x, y, z) in plans):
                         yield (x - lower_x, y - lower_y, z - lower_z, name)
 
-        scan_volume_lower = settings['volume_lower']
-        scan_volume_upper = settings['volume_upper']
-
-        structure_blocks = []
-
-        # scan the volume for structure blocks
-        for x, y, z in scan_volume(scan_volume_lower, scan_volume_upper):
-            block = world.getBlock(x, y, z)
-            if block and block.name == 'minecraft:structure_block':
-                structure_blocks.append({
-                    **{tag.name: tag.payload for tag in block.nbt.payload},
-                    'x': x, 'y': y, 'z': z
-                })
-
-        # for each structure block
-        for structure_block in structure_blocks:
+        def convert_structure_block(namespace, structure_block):
+            """
+            Converts the volume defined by a `structure_block` to a set of functions in a
+            particular `namespace`. The number of functions depends on the number of function plans
+            defined in the structure block's volume.
+            """
             _, structure_name = structure_block['structureName'].split(':')
             print(structure_name)
 
             # read the block's volume
-            block_volume_lower = (
-                structure_block['x'] + structure_block['xStructureOffset'],
-                structure_block['y'] + structure_block['yStructureOffset'],
-                structure_block['z'] + structure_block['zStructureOffset'],
-            )
-            block_volume_upper = (
-                block_volume_lower[0] + structure_block['xStructureSize'] - 1,
-                block_volume_lower[1] + structure_block['yStructureSize'] - 1,
-                block_volume_lower[2] + structure_block['zStructureSize'] - 1,
-            )
+            block_volume_lower, block_volume_upper = structure_block_volume(structure_block)
 
             # scan a structure's volume for function plans
-            plans = scan_for_plans(block_volume_lower, block_volume_upper)
+            plans = scan_for_plans(world, block_volume_lower, block_volume_upper)
 
             # convert the block's volume into a list of fills
             fills = group_blocks_into_fills(
@@ -253,7 +269,6 @@ def convert(path_to_save, path_to_functions, settings):
 
             # the origin is set so that the structure will be created as if you were standing in
             # the same position as the structure block.
-
             origin = (
                 - structure_block['xStructureOffset'],
                 - structure_block['yStructureOffset'],
@@ -262,16 +277,29 @@ def convert(path_to_save, path_to_functions, settings):
 
             # write out a function for each plan
             for plan in plans.values():
+                namespace_folder = os.path.join(path_to_functions, namespace)
+                os.makedirs(namespace_folder, exist_ok=True)
                 function_file = os.path.join(
-                    path_to_functions, f'{structure_name}.{plan.name}.mcfunction'
+                    namespace_folder, f'{structure_name}.{plan.name}.mcfunction'
                 )
                 with open(function_file, 'w') as file:
                     for min_voxel, max_voxel, name in fills:
                         if name != AIR or (name == AIR and plan.do_air):
                             write_fill(
                                 file,
+                                # rotate the structure according to the plan
                                 plan.rotate(min_voxel, origin),
                                 plan.rotate(max_voxel, origin),
+                                # apply any transmutations according to the plan
                                 plan.transmute(name),
                                 origin
                             )
+
+        # for each structure block in the `WORLD_INDEX_VOLUME` ..
+        for index_block in volume_structure_blocks(world, *WORLD_INDEX_VOLUME):
+            _, namespace = index_block['structureName'].split(':')
+            index_block_volume = structure_block_volume(index_block)
+            # .. and for each `structure_block` in the `index_block_volume` ..
+            for structure_block in volume_structure_blocks(world, *index_block_volume):
+                # .. convert that `structure_block` to a set of functions
+                convert_structure_block(namespace, structure_block)
